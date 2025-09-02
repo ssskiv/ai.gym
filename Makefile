@@ -94,7 +94,7 @@ docker-nonroot:
 build:
 # docker build -t $(IMAGE_NAME) --build-arg UID=${UID} --progress=plain --no-cache .
 	@echo "Building image $(IMAGE_NAME)..."
-	@docker build -t $(IMAGE_NAME) -f Dockerfile.humble --build-arg UID=${UID} --build-arg NVIDIA_DRIVER=$(NVIDIA_DRIVER) --build-arg NVIDIA_GPU=$(NVIDIA_GPU) .
+	@docker build -t $(IMAGE_NAME) -f Dockerfile --build-arg UID=${UID} --build-arg NVIDIA_DRIVER=$(NVIDIA_DRIVER) --build-arg NVIDIA_GPU=$(NVIDIA_GPU) .
 
 run:
 	@mkdir -p $(PWD)/ros2_ws
