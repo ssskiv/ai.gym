@@ -1,0 +1,123 @@
+# Base image with ROS 2 ${ROS_DISTRO} Desktop
+FROM osrf/ros:humble-desktop
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV ROS_DISTRO=${ROS_DISTRO}
+ENV USER=bmstu
+ARG UID=1000
+ARG NVIDIA_GPU=1
+ARG NVIDIA_DRIVER=570
+ENV ROS_DOMAIN_ID=231
+ARG DEBIAN_FRONTEND=noninteractive
+
+
+RUN useradd -m -g users ubuntu && groupadd ubuntu
+RUN usermod -l  bmstu ubuntu && \
+    groupmod -n bmstu ubuntu && \
+    usermod -d /bmstu -m  bmstu  && \
+    usermod -c "BMSTU YRC" bmstu && \
+    usermod -s /bin/bash bmstu
+    # RUN usermod -G dialout
+RUN echo "bmstu ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+RUN rm -f /usr/share/keyrings/ros2-latest-archive-keyring.gpg \
+    && curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros2-latest-archive-keyring.gpg
+
+
+# Update and install required tools
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    build-essential \
+    python3-colcon-common-extensions \
+    ros-${ROS_DISTRO}-ros-base \
+    ros-${ROS_DISTRO}-rqt \
+    ros-${ROS_DISTRO}-rqt-common-plugins \
+    # ros-${ROS_DISTRO}-realsense2-camera \
+    # ros-${ROS_DISTRO}-gazebo-ros-pkgs \
+    # ros-${ROS_DISTRO}-geometry2 \
+    ros-${ROS_DISTRO}-webots-ros2 \
+    ros-${ROS_DISTRO}-robot-localization \
+    ros-${ROS_DISTRO}-pointcloud-to-laserscan \
+    git \
+    nano \
+    tmux \
+    curl \
+    wget \
+    locales \
+    && apt-get clean
+
+# Set locale
+# RUN locale-gen en_US en_US.UTF-8
+# ENV LANG=en_US.UTF-8
+# ENV LANGUAGE=en_US:en
+# ENV LC_ALL=en_US.UTF-8
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Webots
+RUN curl -L -o /tmp/webots.deb \
+    'https://github.com/cyberbotics/webots/releases/download/R2025a/webots_2025a_amd64.deb' 
+RUN apt-get update && \
+    apt-get install -y /tmp/webots.deb && \
+    rm -f /tmp/webots.deb && \
+    mkdir -p /bmstu/.config/Cyberbotics \
+    && sudo rm -rf /var/lib/apt/lists/*
+
+RUN sudo apt-get update \
+    && sudo apt-get install -y ros-${ROS_DISTRO}-xacro ros-${ROS_DISTRO}-joint-state-publisher-gui \
+    && sudo apt-get install -y ros-${ROS_DISTRO}-tf-transformations  ros-${ROS_DISTRO}-rqt-tf-tree \
+    && sudo rm -rf /var/lib/apt/lists/*
+
+RUN sudo apt update \
+    && sudo apt install -y ros-${ROS_DISTRO}-navigation2 \
+    && sudo apt install -y ros-${ROS_DISTRO}-nav2-bringup \
+    && sudo apt install -y ros-${ROS_DISTRO}-slam-toolbox \
+    && sudo rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir  "numpy<2" opencv-python pymavlink ultralytics tensorboard 
+#--break-system-packages
+RUN sudo apt update && \
+    sudo apt install -y python3-serial \
+    python3-torch python3-torchvision && \
+    sudo rm -rf /var/lib/apt/lists/*
+
+# Source ROS 2 on container start
+RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /bmstu/.bashrc
+# RUN echo "export PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;32m\]\w\[\033[00m\]\$ '" >> /bmstu/.bashrc
+COPY ./bashrc  /tmp/bashrc
+RUN cat /tmp/bashrc >> /bmstu/.bashrc &&\
+    rm -f /tmp/bashrc &&\
+    chown -R bmstu:bmstu /bmstu
+    
+# Install NVIDIA OpenGL libraries and tools for verification
+# Install OpenGL libraries for both NVIDIA and Mesa fallback, plus tools
+RUN sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+    libnvidia-gl-${NVIDIA_DRIVER} \
+    libgl1 \
+    libglu1-mesa \
+    mesa-utils \
+    nvidia-utils-${NVIDIA_DRIVER} \
+    && sudo rm -rf /var/lib/apt/lists/*
+
+# Create an entrypoint script to detect GPU and configure OpenGL
+RUN echo '#!/bin/bash\n\
+if ["${NVIDIA_GPU}"="1"]; then\n\
+    echo "NVIDIA GPU detected, configuring for NVIDIA OpenGL"\n\
+    export LIBGL_ALWAYS_INDIRECT=0\n\
+    export __GLX_VENDOR_LIBRARY_NAME=nvidia\n\
+else\n\
+    echo "No NVIDIA GPU detected, falling back to Mesa"\n\
+    export LIBGL_ALWAYS_INDIRECT=0\n\
+    export __GLX_VENDOR_LIBRARY_NAME=mesa\n\'
+#NVIDIA END
+
+USER bmstu
+# Set working directory
+WORKDIR /bmstu/ros2_ws
+
+# Create entrypoint
+COPY ./ros_entrypoint.sh /ros_entrypoint.sh
+RUN sudo chmod +x /ros_entrypoint.sh
+ENTRYPOINT ["/ros_entrypoint.sh"]
+CMD ["/bin/bash"]
