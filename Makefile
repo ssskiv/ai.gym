@@ -1,5 +1,5 @@
 IMAGE_NAME=ros2-humble-gpu
-CONTAINER_NAME=ekf
+CONTAINER_NAME=template
 
 UID:=${shell id -u}
 NVIDIA_DRIVER:=570
