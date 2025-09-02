@@ -1,3 +1,5 @@
+<h1>What is this?</h1>
+
 this is template for creating ROS2 Humble container with Nvidia GPU support (with automatic integrated mesa GPU mode) and Webots preinstalled. Building requires stable Internet connection.
 <h1>How to use?</h1>
 
@@ -10,3 +12,9 @@ this is template for creating ROS2 Humble container with Nvidia GPU support (wit
 Ubuntu 22.04 with Nvidia 570(you can change this in Dockerfile and Makefile) for Nvidia GPU support.
 
 Ubuntu 22.04 with any video drivers for Mesa mode.
+
+<h1>Notes</h1>
+
+* if you have 2 displays, replace `export DISPLAY=:0` in bashrc to `export DISPLAY=:1` before running make or run
+   ```sudo bash echo "export DISPLAY=:1" >> ~/.bashrc```
+  in existing container.
