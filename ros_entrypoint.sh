@@ -9,5 +9,6 @@ if [ -f /bmstu/ros2_ws/install/setup.bash ]; then
     source /bmstu/ros2_ws/install/setup.bash
 fi
 
+
 exec "$@"
 exec "bash"

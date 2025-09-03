@@ -104,6 +104,9 @@ RUN  apt-get update &&  apt-get install -y --no-install-recommends \
     nvidia-utils-${NVIDIA_DRIVER} \
     &&  rm -rf /var/lib/apt/lists/*
 
+RUN pip3 install numpy gym==0.21 stable_baselines3
+
+
 # Create an entrypoint script to detect GPU and configure OpenGL
 RUN echo '#!/bin/bash\n\
 if ["${NVIDIA_GPU}"="1"]; then\n\
