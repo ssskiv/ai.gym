@@ -75,13 +75,6 @@ RUN sudo apt update \
     && sudo apt install -y ros-${ROS_DISTRO}-slam-toolbox \
     && sudo rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir  "numpy<2" opencv-python pymavlink ultralytics tensorboard 
-#--break-system-packages
-RUN sudo apt update && \
-    sudo apt install -y python3-serial \
-    python3-torch python3-torchvision && \
-    sudo rm -rf /var/lib/apt/lists/*
-
 # Source ROS 2 on container start
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /bmstu/.bashrc
 # RUN echo "export PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;32m\]\w\[\033[00m\]\$ '" >> /bmstu/.bashrc
