@@ -1,0 +1,77 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/vehicles/protos/tesla/TeslaModel3.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/CircleArena.proto"
+
+WorldInfo {
+  ERP 0.6
+  basicTimeStep 10
+  lineScale 1
+  contactProperties [
+    ContactProperties {
+      material2 "TeslaModel3Wheels"
+      coulombFriction [
+        8
+      ]
+      softCFM 1e-05
+    }
+  ]
+}
+Viewpoint {
+  orientation -0.21790191791598007 0.22230623834316068 0.9503150480563017 1.6017552432140412
+  position -22.420980000531756 -1121.9759455219798 544.9571121999963
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+DEF CAR TeslaModel3 {
+  translation -0.00672319 -0.00168674 5
+  rotation 0.34226511986083635 -0.9395604502216856 -0.008985994985002752 0.029556383592978984
+  controller "my_controller"
+  sensorsSlotCenter [
+    Robot {
+      translation 1 0 1.1
+      children [
+        Shape {
+          appearance PBRAppearance {
+          }
+          geometry DEF CYL Cylinder {
+            height 0.2
+            radius 0.5
+          }
+        }
+        DEF ACCEL Accelerometer {
+        }
+        DEF GYRO Gyro {
+        }
+        DEF GPS GPS {
+        }
+      ]
+      name "supervisor"
+      boundingObject USE CYL
+      physics Physics {
+        density 50
+        centerOfMass [
+          0 0 0
+        ]
+        inertiaMatrix [
+          1 1 1
+          0 0 0
+        ]
+      }
+      controller "ai_supervisor_controller"
+      supervisor TRUE
+    }
+  ]
+}
+CircleArena {
+  translation 0 0 2
+  radius 500
+  floorTileSize 20 20
+  wallThickness 40
+  wallHeight 5
+  subdivision 16
+}
