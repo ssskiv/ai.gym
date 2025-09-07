@@ -1,57 +1,45 @@
 """my_controller controller."""
 
-# You may need to import some classes of the controller module. Ex:
-#  from controller import Robot, Motor, DistanceSensor
 from vehicle import Driver
 
 import random
 
-# create the Robot instance.
-
-
-# get the time step of the current world.
 tesla = Driver()
 timestep = int(tesla.getBasicTimeStep())
 
-# fl = car.getDevice('wheelFrontLeft')
+compass = tesla.getDevice('compass')
+compass.enable(timestep)
 
-# You should insert a getDevice-like function in order to get the
-# instance of a device of the robot. Something like:
-#  motor = robot.getDevice('motorname')
-#  ds = robot.getDevice('dsname')
-#  ds.enable(timestep)
-
-# Main loop:
-# - perform simulation steps until Webots is stopping the controller
 coef = 1
 dir = False
+angle = 0
+
+Kp = 1
+Ki = 0
+Kd = 0
+
+I = 0
+last_e = 0
+
+def computePID(target, real, dt):
+    global I, last_e
+    e = target - real
+    I = I + e * dt
+    D = (e - last_e) / dt
+    last_e = e
+    return e * Kp + I * Ki + D * Kd
+
 while tesla.step() != -1:
-    # Read the sensors:
-    # Enter here functions to read sensor data, like:
-    #  val = ds.getValue()
-
-    # Process sensor data here.
-
-    # Enter here functions to send actuator commands, like:
-    #  motor.setPosition(10.0)
-    if dir:
-        coef += 0.001 * random.randint(-20, 200)
-    else:
-        coef -= 0.001 * random.randint(-20, 200)
-    if abs(coef) >= 1:
-        dir = not dir
-        coef = 1
-        
-    angle = coef * 1.2
-    if abs(angle) > 0.8:
-        angle = 0.8 * angle/abs(angle)
     
-    tesla.setSteeringAngle(angle)
+    real_dir = -compass.getValues()[0]
+    # print(real_dir)
+    
+    tesla.setSteeringAngle(computePID(0, real_dir, timestep))
+    
+    
     tesla.setBrakeIntensity(0.0)
     tesla.setGear(1)
     tesla.setThrottle(1)
-
-    #print(angle)
+    
     pass
 
-# Enter here exit cleanup code.

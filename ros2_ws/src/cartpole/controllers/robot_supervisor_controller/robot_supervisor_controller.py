@@ -1,10 +1,13 @@
 from deepbots.supervisor.controllers.robot_supervisor_env import RobotSupervisorEnv
 from utilities import normalize_to_range
-from PPO_agent import PPOAgent, Transition
+from LSTM_agent import LSTMAgent, Transition
 
 from gym.spaces import Box, Discrete
 import numpy as np
 
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# print(f"Using device: {device}")
 
 class CartpoleRobot(RobotSupervisorEnv):
     def __init__(self):
@@ -91,7 +94,7 @@ class CartpoleRobot(RobotSupervisorEnv):
 
 
 env = CartpoleRobot()
-agent = PPOAgent(number_of_inputs=env.observation_space.shape[0], number_of_actor_outputs=env.action_space.n)
+agent = LSTMAgent(number_of_inputs=env.observation_space.shape[0], number_of_actor_outputs=env.action_space.n)
 
 solved = False
 episode_count = 0

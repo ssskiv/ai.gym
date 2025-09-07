@@ -3,11 +3,11 @@
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/vehicles/protos/tesla/TeslaModel3.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/CircleArena.proto"
 
 WorldInfo {
   ERP 0.6
-  basicTimeStep 10
+  basicTimeStep 32
+  optimalThreadCount 4
   lineScale 1
   contactProperties [
     ContactProperties {
@@ -20,8 +20,10 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.21790191791598007 0.22230623834316068 0.9503150480563017 1.6017552432140412
-  position -22.420980000531756 -1121.9759455219798 544.9571121999963
+  orientation -0.1834436040809558 0.1885612335251203 0.9647761944271191 1.5791552566225682
+  position 0.9852572135478546 -18.019983674092103 12.031044359738264
+  follow "vehicle"
+  followType "Mounted Shot"
 }
 TexturedBackground {
 }
@@ -32,6 +34,8 @@ DEF CAR TeslaModel3 {
   rotation 0.34226511986083635 -0.9395604502216856 -0.008985994985002752 0.029556383592978984
   controller "my_controller"
   sensorsSlotCenter [
+    Compass {
+    }
     Robot {
       translation 1 0 1.1
       children [
@@ -67,11 +71,18 @@ DEF CAR TeslaModel3 {
     }
   ]
 }
-CircleArena {
-  translation 0 0 2
-  radius 500
-  floorTileSize 20 20
-  wallThickness 40
-  wallHeight 5
-  subdivision 16
+Billboard {
+  children [
+    Shape {
+      geometry Plane {
+        size 10 10
+      }
+    }
+  ]
+}
+Solid {
+  translation 998 0 3
+  boundingObject Box {
+    size 2000 8 3
+  }
 }

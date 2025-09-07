@@ -13,15 +13,17 @@ from collections import namedtuple
 
 Transition = namedtuple('Transition', ['state', 'action', 'a_log_prob', 'reward', 'next_state'])
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-class PPOAgent:
+
+class LSTMAgent:
     """
-    PPOAgent implements the PPO RL algorithm (https://arxiv.org/abs/1707.06347).
+    LSTMAgent implements the LSTM RL algorithm (https://arxiv.org/abs/1707.06347).
     It works with a set of discrete actions.
     It uses the Actor and Critic neural network classes defined below.
     """
 
-    def __init__(self, number_of_inputs, number_of_actor_outputs, clip_param=0.2, max_grad_norm=0.5, ppo_update_iters=5,
+    def __init__(self, number_of_inputs, number_of_actor_outputs, clip_param=0.2, max_grad_norm=0.5, LSTM_update_iters=5,
                  batch_size=8, gamma=0.99, use_cuda=False, actor_lr=0.001, critic_lr=0.003, seed=None):
         super().__init__()
         if seed is not None:
@@ -30,7 +32,7 @@ class PPOAgent:
         # Hyper-parameters
         self.clip_param = clip_param
         self.max_grad_norm = max_grad_norm
-        self.ppo_update_iters = ppo_update_iters
+        self.LSTM_update_iters = LSTM_update_iters
         self.batch_size = batch_size
         self.gamma = gamma
         self.use_cuda = use_cuda
@@ -155,8 +157,8 @@ class PPOAgent:
             state, action, old_action_log_prob = state.cuda(), action.cuda(), old_action_log_prob.cuda()
             Gt = Gt.cuda()
 
-        # Repeat the update procedure for ppo_update_iters
-        for _ in range(self.ppo_update_iters):
+        # Repeat the update procedure for LSTM_update_iters
+        for _ in range(self.LSTM_update_iters):
             # Create randomly ordered batches of size batch_size from buffer
             for index in BatchSampler(SubsetRandomSampler(range(len(self.buffer))), batch_size, False):
                 # Calculate the advantage at each step
@@ -169,7 +171,7 @@ class PPOAgent:
                 # Apply past actions with .gather()
                 action_prob = self.actor_net(state[index]).gather(1, action[index])  # new policy
 
-                # PPO
+                # LSTM
                 ratio = (action_prob / old_action_log_prob[index])  # Ratio between current and old policy probabilities
                 surr1 = ratio * advantage
                 surr2 = clamp(ratio, 1 - self.clip_param, 1 + self.clip_param) * advantage

@@ -1,0 +1,48 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/road/protos/StraightRoadSegment.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/vehicles/protos/abstract/SimpleVehicle.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/vehicles/protos/abstract/Car.proto"
+
+WorldInfo {
+  ERP 0.6
+  basicTimeStep 16
+  optimalThreadCount 4
+  lineScale 1
+  contactProperties [
+    ContactProperties {
+      material2 "TeslaModel3Wheels"
+      coulombFriction [
+        8
+      ]
+      softCFM 1e-05
+    }
+  ]
+}
+Viewpoint {
+  orientation -0.21790191791598007 0.22230623834316068 0.9503150480563017 1.6017552432140412
+  position 0.6660214942926392 -17.532426418829065 13.212069694097837
+  followType "Mounted Shot"
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+DEF CAR SimpleVehicle {
+  hidden rotation_2 0 0 1 0
+  translation 0 0 5.22
+  controller "my_controller"
+}
+StraightRoadSegment {
+  translation -2 0 4
+  width 15
+  bottom TRUE
+  length 5000
+  roadBoundingObject TRUE
+}
+Car {
+  translation 0 0 6.65
+  name "vehicle(1)"
+}
